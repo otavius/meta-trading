@@ -119,3 +119,42 @@ class MT5:
             result = mt5.order_send(request)
             result_comment = result.comment
         return result.comment
+
+    def resume():
+        """ Return the current positions. Position=0 ---> BUY """
+        # initialize the connection if there is not 
+        mt5.initialize()
+
+        # Define the name of the columns that we will create 
+        colonnes = ["ticket", "position", "symbol", "volume"]
+
+        # Go take the current open trades 
+        current = mt5.positions_get()
+
+        # Create a empty dataframe 
+        summary = pd.DataFrame()
+
+        # loop to add each row in dataframe 
+        # (can be ameliorate using of list of list)
+        for element in current:
+            element_pandas = pd.DataFrame([element.ticket, element.type, element.symbol, element.volume], index=colonnes).transpose()
+            summary = pd.concat((summary, element_pandas), axis=0)
+        return summary
+    
+    def run(symbol, long, short, lot):
+        # Initialize the connection if there is not 
+        if mt5.initialize() == False:
+            mt5.initialize()
+
+        # Choose your symbol
+        print("-----------------------------------------")
+        print("Date: ", datetime.now().strftime("%Y-%m-%d %H:%M:%S"))
+        print("SYMBOL: ", symbol)
+
+        # Initialize the device 
+        current_open_positions = MT5.resume()
+        # Buy or Sell 
+        print(f"Buy: {long} \t Short: {short}")
+
+        """ close trade eventually"""
+        
